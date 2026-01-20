@@ -1,0 +1,39 @@
+name: CI - .NET & Angular tests
+
+on:
+  push:
+    branches: [ main, practice ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+      - name: Restore and test .NET
+        working-directory: backend/EmailValidator
+        run: |
+          dotnet restore
+          dotnet test --verbosity normal
+
+  frontend:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install dependencies and run tests
+        working-directory: frontend
+        run: |
+          npm ci
+          npm test --silent
